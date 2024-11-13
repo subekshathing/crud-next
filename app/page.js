@@ -3,7 +3,7 @@ import dbConnect from "./utils/dbConnect.js";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
   dbConnect();
 
   //create
@@ -22,6 +22,11 @@ export default function Home() {
     }
     redirect("/");
   }
+
+  //Read
+  const data = await pool.query("SELECT * FROM notes");
+  const result = data.rows;
+
   return (
     <main className="m-10">
       <div className="m-5">
@@ -49,6 +54,26 @@ export default function Home() {
           </button>
         </form>
       </div>
+      {result.map((element) => {
+        return (
+          <>
+            <ul key={element.id} className="flex my-2">
+              <li className="text-center w-[50%]">{element.note}</li>
+              <li className="text-center w-[50%]">{element.date}</li>
+              <li className="text-center w-[20%]">
+                <Link href={"/edit/" + element.id}>
+                  <button className="bg-cyan-600 font-bold text-white p-2">
+                    EDIT
+                  </button>
+                </Link>
+                <button className="bg-red-600 font-bold text-white p-2">
+                  DELETE
+                </button>
+              </li>
+            </ul>
+          </>
+        );
+      })}
     </main>
   );
 }
