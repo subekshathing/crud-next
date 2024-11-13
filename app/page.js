@@ -27,6 +27,18 @@ export default async function Home() {
   const data = await pool.query("SELECT * FROM notes");
   const result = data.rows;
 
+  //delete
+  async function deleteNote(data) {
+    "use server";
+    let id = data.get("id").valueOf();
+    try {
+      await pool.query("DELETE FROM notes WHERE id=$1", [id]);
+      console.log("note deleted");
+    } catch (err) {
+      console.log(err);
+    }
+    redirect("/");
+  }
   return (
     <main className="m-10">
       <div className="m-5">
@@ -60,15 +72,21 @@ export default async function Home() {
             <ul key={element.id} className="flex my-2">
               <li className="text-center w-[50%]">{element.note}</li>
               <li className="text-center w-[50%]">{element.date}</li>
-              <li className="text-center w-[20%]">
+              <li className="flex text-center w-[20%]">
                 <Link href={"/edit/" + element.id}>
                   <button className="bg-cyan-600 font-bold text-white p-2">
                     EDIT
                   </button>
                 </Link>
-                <button className="bg-red-600 font-bold text-white p-2">
-                  DELETE
-                </button>
+                <form action={deleteNote}>
+                  <input type="hidden" name="id" value={element.id} />
+                  <button
+                    className="bg-red-600 font-bold text-white p-2"
+                    type="submit"
+                  >
+                    DEL
+                  </button>
+                </form>
               </li>
             </ul>
           </>
